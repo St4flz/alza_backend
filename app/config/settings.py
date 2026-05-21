@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SUPABASE_URL: str
     SUPABASE_JWT_SECRET: str
+    SUPABASE_PUBLISHABLE_KEY: str | None = None
+    SUPABASE_SECRET_KEY: str | None = None
     API_V1_PREFIX: str = "/api/v1"
 
     class Config:
