@@ -22,14 +22,14 @@ def get_tag(tag_id: str, db: Session = Depends(get_db), user_id: str = Depends(g
 
 @router.post("")
 def create(payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = TagCreateSerializer(**payload.get("data", {}))
+    data = TagCreateSerializer(**payload)
     tag = create_tag(db, data, user_id)
     result = {k: v for k, v in tag.__dict__.items() if k != "_sa_instance_state"}
     return created_response(data=result)
 
 @router.patch("/{tag_id}")
 def update(tag_id: str, payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = TagUpdateSerializer(**payload.get("data", {}))
+    data = TagUpdateSerializer(**payload)
     tag = update_tag(db, tag_id, data, user_id)
     result = {k: v for k, v in tag.__dict__.items() if k != "_sa_instance_state"}
     return success_response(data=result)

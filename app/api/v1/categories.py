@@ -22,14 +22,14 @@ def get_category(category_id: str, db: Session = Depends(get_db), user_id: str =
 
 @router.post("")
 def create(payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = CategoryCreateSerializer(**payload.get("data", {}))
+    data = CategoryCreateSerializer(**payload)
     category = create_category(db, data, user_id)
     result = {k: v for k, v in category.__dict__.items() if k != "_sa_instance_state"}
     return created_response(data=result)
 
 @router.patch("/{category_id}")
 def update(category_id: str, payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = CategoryUpdateSerializer(**payload.get("data", {}))
+    data = CategoryUpdateSerializer(**payload)
     category = update_category(db, category_id, data, user_id)
     result = {k: v for k, v in category.__dict__.items() if k != "_sa_instance_state"}
     return success_response(data=result)

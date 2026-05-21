@@ -33,14 +33,14 @@ def get_transaction(transaction_id: str, db: Session = Depends(get_db), user_id:
 
 @router.post("")
 def create(payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = TransactionCreateSerializer(**payload.get("data", {}))
+    data = TransactionCreateSerializer(**payload)
     transaction = create_transaction(db, data, user_id)
     result = {k: v for k, v in transaction.__dict__.items() if k != "_sa_instance_state"}
     return created_response(data=result)
 
 @router.patch("/{transaction_id}")
 def update(transaction_id: str, payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = TransactionUpdateSerializer(**payload.get("data", {}))
+    data = TransactionUpdateSerializer(**payload)
     transaction = update_transaction(db, transaction_id, data, user_id)
     result = {k: v for k, v in transaction.__dict__.items() if k != "_sa_instance_state"}
     return success_response(data=result)

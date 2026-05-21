@@ -24,14 +24,14 @@ def get_wallet(wallet_id: str, db: Session = Depends(get_db), user_id: str = Dep
 
 @router.post("")
 def create(payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = WalletCreateSerializer(**payload.get("data", {}))
+    data = WalletCreateSerializer(**payload)
     wallet = create_wallet(db, data, user_id)
     result = {k: v for k, v in wallet.__dict__.items() if k != "_sa_instance_state"}
     return created_response(data=result)
 
 @router.patch("/{wallet_id}")
 def update(wallet_id: str, payload: dict, db: Session = Depends(get_db), user_id: str = Depends(get_current_user_id)):
-    data = WalletUpdateSerializer(**payload.get("data", {}))
+    data = WalletUpdateSerializer(**payload)
     wallet = update_wallet(db, wallet_id, data, user_id)
     result = {k: v for k, v in wallet.__dict__.items() if k != "_sa_instance_state"}
     return success_response(data=result)
