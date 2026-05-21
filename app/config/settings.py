@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     DATABASE_URL: str
     SUPABASE_URL: str
-    SUPABASE_JWT_SECRET: str
+    SUPABASE_JWT_SECRET: str | None = None
     SUPABASE_PUBLISHABLE_KEY: str | None = None
     SUPABASE_SECRET_KEY: str | None = None
     API_V1_PREFIX: str = "/api/v1"
