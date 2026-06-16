@@ -3,7 +3,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from app.config.settings import settings
 from app.database.base import Base
-from app.models import wallet_model, category_model, tag_model, transaction_model, transfer_model
+from app.models import wallet_model, category_model, tag_model, transaction_model, transfer_model, receipt_model
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL.replace("%", "%%"))

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import settings
-from app.api.v1 import wallets, categories, tags, transactions, users, transfers
+from app.api.v1 import wallets, categories, tags, transactions, users, transfers, receipts
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -23,6 +23,7 @@ app.include_router(tags.router, prefix=settings.API_V1_PREFIX)
 app.include_router(transactions.router, prefix=settings.API_V1_PREFIX)
 app.include_router(users.router, prefix=settings.API_V1_PREFIX)
 app.include_router(transfers.router, prefix=settings.API_V1_PREFIX)
+app.include_router(receipts.router, prefix=settings.API_V1_PREFIX)
 
 @app.get("/")
 def root():
