@@ -58,7 +58,7 @@ async def process_receipt(
 
     # 3. Process with Gemini
     try:
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         prompt = """
         Extrae la siguiente información de este recibo o factura y devuélvela estrictamente en formato JSON válido:
         {
