@@ -2,6 +2,7 @@ import os
 import httpx
 import base64
 import json
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 import google.generativeai as genai
@@ -18,10 +19,10 @@ class ReceiptProcessRequest(BaseModel):
 
 class ReceiptProcessResponse(BaseModel):
     id: str
-    amount: float = None
-    category_hint: str = None
-    date: str = None
-    raw_text: str = None
+    amount: Optional[float] = None
+    category_hint: Optional[str] = None
+    date: Optional[str] = None
+    raw_text: Optional[str] = None
 
 # Configure Gemini
 api_key = os.environ.get("GEMINI_API_KEY", "")
