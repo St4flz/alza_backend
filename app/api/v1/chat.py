@@ -8,7 +8,9 @@ import google.generativeai as genai
 from app.database.connection import get_db
 from app.middleware.auth_middleware import get_current_user_id
 from app.utils.responses import success_response
-from app.services import transaction_service, category_service, wallet_service
+from app.services import transaction_service, category_service, wallet_service, transfer_service
+from app.serializers.wallet_serializer import WalletCreateSerializer
+from app.serializers.transfer_serializer import TransferCreateSerializer
 
 import logging
 logger = logging.getLogger("chat_agent")
@@ -45,15 +47,44 @@ async def send_chat_message(
             cats = category_service.get_all_categories(db, user_id)
             return [{"name": c.name} for c in cats]
 
+        def create_wallet(name: str, initial_balance: float) -> str:
+            """Crea una nueva cuenta o billetera. Útil cuando el usuario te pide registrar una nueva cuenta."""
+            wallet_data = WalletCreateSerializer(name=name, balance=initial_balance)
+            wallet = wallet_service.create_wallet(db, wallet_data, user_id)
+            return f"Billetera '{wallet.name}' creada exitosamente."
+
+        def transfer_money(origin_wallet_name: str, dest_wallet_name: str, amount: float) -> str:
+            """Transfiere dinero entre dos cuentas. Debes pedirle al usuario el nombre exacto de la cuenta origen y destino."""
+            wallets = wallet_service.get_all_wallets(db, user_id)
+            origin_wallet = next((w for w in wallets if w.name.lower() == origin_wallet_name.lower()), None)
+            dest_wallet = next((w for w in wallets if w.name.lower() == dest_wallet_name.lower()), None)
+            
+            if not origin_wallet:
+                return f"Error: No encontré la cuenta origen '{origin_wallet_name}'."
+            if not dest_wallet:
+                return f"Error: No encontré la cuenta destino '{dest_wallet_name}'."
+                
+            transfer_data = TransferCreateSerializer(
+                origin_wallet_id=str(origin_wallet.id),
+                dest_wallet_id=str(dest_wallet.id),
+                amount=amount
+            )
+            transfer = transfer_service.create_transfer(db, transfer_data, user_id)
+            return f"Transferencia de {amount} exitosa."
+
         # Configurar modelo con herramientas
         model = genai.GenerativeModel(
             model_name='gemini-2.5-flash',
-            tools=[get_wallet_balances, get_transactions, get_categories],
+            tools=[get_wallet_balances, get_transactions, get_categories, create_wallet, transfer_money],
             system_instruction=(
                 "Eres el asistente financiero inteligente de la app Alza+. "
                 "Tu objetivo es dar consejos financieros concisos, amigables y al punto. "
                 "Siempre que necesites datos reales del usuario (para saber saldos, ingresos, o gastos), "
                 "USA TUS HERRAMIENTAS. No asumas números ni te los inventes. "
+                "IMPORTANTE: ANTES de llamar a las herramientas 'create_wallet' o 'transfer_money', DEBES "
+                "preguntarle al usuario de forma clara y explícita si está seguro de querer realizar la acción "
+                "(ej. 'Voy a transferir 50 de X a Y. ¿Estás de acuerdo?'). SOLO si el usuario responde "
+                "afirmativamente en el siguiente mensaje, puedes ejecutar la herramienta correspondiente. "
                 "Responde con emojis para hacerlo amigable."
             )
         )
