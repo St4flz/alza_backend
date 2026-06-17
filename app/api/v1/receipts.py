@@ -10,6 +10,7 @@ import google.generativeai as genai
 from app.database.connection import get_db
 from app.models.receipt_model import ReceiptImage
 from app.middleware.auth_middleware import get_current_user_id
+from app.utils.responses import success_response
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/receipts", tags=["Receipts"])
@@ -29,7 +30,7 @@ api_key = os.environ.get("GEMINI_API_KEY", "")
 if api_key:
     genai.configure(api_key=api_key)
 
-@router.post("/process", response_model=ReceiptProcessResponse)
+@router.post("/process")
 async def process_receipt(
     request: ReceiptProcessRequest,
     db: Session = Depends(get_db),
@@ -88,13 +89,15 @@ async def process_receipt(
             
         extracted_data = json.loads(text_response.strip())
         
-        return ReceiptProcessResponse(
+        response_data = ReceiptProcessResponse(
             id=str(new_receipt.id),
             amount=extracted_data.get("amount"),
             category_hint=extracted_data.get("category_hint"),
             date=extracted_data.get("date"),
             raw_text=extracted_data.get("raw_text")
         )
+        
+        return success_response(data=response_data.model_dump())
 
     except json.JSONDecodeError:
         raise HTTPException(status_code=500, detail="Failed to parse JSON from Gemini response")
